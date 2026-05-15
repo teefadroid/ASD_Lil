@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-ASD International — static-site generator.
+ASD International — static-site generator (Lilly-inspired editorial design).
 
 Reads structured product data and emits:
-  - products.html               (catalog grid with category filters)
+  - products.html               (catalog with category tabs + thumb grid)
   - products/<slug>.html        (one detail page per product)
   - about.html, contact.html, partners.html
 
@@ -12,13 +12,12 @@ that the header, footer, and chrome stay in sync across the whole site.
 """
 
 import os
-import re
 from textwrap import dedent
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ---------------------------------------------------------------------------
-# Data (scraped from asdinternationaluae.com, restructured for the new site)
+# Product data (scraped from asdinternationaluae.com, restructured)
 # ---------------------------------------------------------------------------
 
 PRODUCTS = [
@@ -344,7 +343,6 @@ for p in PRODUCTS:
 # ---------------------------------------------------------------------------
 
 def header(active, base=""):
-    """Site header. `base` is the path prefix to assets and root pages."""
     return dedent(f"""\
     <header class="site-header">
       <div class="container nav">
@@ -366,9 +364,9 @@ def header(active, base=""):
         </nav>
         <div class="nav-cta">
           <a class="icon-link" href="https://www.linkedin.com/company/asd-international-medical-requisites" target="_blank" rel="noopener" aria-label="LinkedIn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
           </a>
-          <a class="btn btn-primary btn-sm" href="{base}contact.html">Get in touch</a>
+          <a class="btn btn-red btn-sm" href="{base}contact.html">Get in touch</a>
           <button class="menu-btn" data-menu-btn aria-label="Open menu" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
           </button>
@@ -463,7 +461,7 @@ def page(title, description, body_html, base="", extra_head=""):
       <link rel="icon" href="{base}assets/img/favicon.png" type="image/png" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <link rel="stylesheet" href="{base}assets/css/site.css" />
       {extra_head}
     </head>
@@ -475,123 +473,117 @@ def page(title, description, body_html, base="", extra_head=""):
     """)
 
 
+# Reusable arrow SVG snippet
+ARROW = '<svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+
+
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
 
 def page_about():
-    body = header("about") + dedent("""\
+    body = header("about") + dedent(f"""\
     <main>
       <section class="page-head">
         <div class="container">
-          <p class="crumb"><a href="index.html">Home</a> / About</p>
-          <span class="eyebrow">About ASD International</span>
-          <h1>Pharmaceutical rigor, regional commitment.</h1>
-          <p class="lead">A leading UAE-based medical company with ambitious plans across the GCC and the Middle East — built on quality, science and care.</p>
-        </div>
-      </section>
-
-      <section class="section bleed-white">
-        <div class="container split">
-          <div class="split-image reveal">
-            <img src="assets/img/quality-commitment.png" alt="ASD International — quality commitment" loading="lazy" />
-          </div>
-          <div class="reveal">
-            <span class="eyebrow eyebrow-blue">Our story</span>
-            <h2>From Abu Dhabi, for the region.</h2>
-            <span class="divider"></span>
-            <p class="lead mt-3">
-              ASD International Medical Requisites LLC is a leading medical company
-              based in the United Arab Emirates. Our headquarters in ICAD III, Abu
-              Dhabi, gives us the manufacturing rigor and regulatory access to serve
-              healthcare professionals across the UAE and the wider GCC.
-            </p>
-            <p>
-              Our unwavering commitment to quality is what sets us apart. We believe
-              that patients in our region deserve nothing but the best service and
-              care — supplements engineered with the rigor of pharmaceuticals and the
-              bioavailability of natural wellness.
-            </p>
-            <p>
-              Every product in our portfolio is built on advanced delivery
-              technology — chelation, sustained release, liposomal carriers and
-              nanotechnology — designed to make every milligram count.
-            </p>
-          </div>
+          <p class="crumb"><a href="index.html">Home</a><span class="sep">/</span>About</p>
+          <h1>A medicine company that puts health above all.</h1>
+          <p class="lead">ASD International is a UAE-based pharmaceutical company committed to advancing human health across the GCC and the Middle East.</p>
         </div>
       </section>
 
       <section class="section">
         <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow">What we believe</span>
-            <h2>Our mission, in three commitments.</h2>
-            <span class="divider"></span>
-          </div>
-          <div class="pillars">
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/></svg></div>
-              <h3>Bridge science and wellness</h3>
-              <p>To develop and deliver innovative, science-backed nutritional supplements that bridge the gap between pharmaceutical rigor and natural wellness.</p>
+          <div class="split">
+            <div class="split-image reveal">
+              <img src="assets/img/quality-commitment.png" alt="ASD International — quality commitment" loading="lazy" />
             </div>
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M12 3v18"/><path d="M5.6 5.6l12.8 12.8"/><path d="M18.4 5.6 5.6 18.4"/></svg></div>
-              <h3>Serve the region</h3>
-              <p>To make pharmaceutical-grade supplements accessible across the GCC and the Middle East — through trusted partnerships with pharmacies, hospitals and distributors.</p>
-            </div>
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
-              <h3>Hold the line on quality</h3>
-              <p>Every batch is held to strict quality controls. Every formula is reviewed by medical experts. Every claim is backed by science.</p>
+            <div class="split-text reveal">
+              <span class="eyebrow eyebrow-red">Our story</span>
+              <h2>From Abu Dhabi, for the region.</h2>
+              <p class="lead">
+                ASD International Medical Requisites LLC is a leading medical company
+                based in the United Arab Emirates. Our headquarters in ICAD III, Abu
+                Dhabi, gives us the manufacturing rigor and regulatory access to serve
+                healthcare professionals across the UAE and the wider GCC.
+              </p>
+              <p>
+                Our unwavering commitment to quality is what sets us apart. We believe
+                that patients in our region deserve nothing but the best service and
+                care — supplements engineered with the rigor of pharmaceuticals and
+                the bioavailability of natural wellness.
+              </p>
+              <p>
+                Every product in our portfolio is built on advanced delivery
+                technology — chelation, sustained release, liposomal carriers and
+                nanotechnology — designed to make every milligram count.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section bleed">
+      <section class="red-band">
         <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow eyebrow-blue">Technologies we work with</span>
-            <h2>The science inside every ASD product.</h2>
-            <span class="divider"></span>
+          <span class="eyebrow eyebrow-light">Our purpose</span>
+          <p class="quote">"We unite scientific rigor with care for the patient — to make every dose work the way the body needs it to."</p>
+          <p class="quote-attrib">
+            ASD International
+            <span class="role">Innovation for your health</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="heading-block reveal">
+            <div>
+              <span class="eyebrow">What sets us apart</span>
+              <h2>The science inside every ASD product.</h2>
+            </div>
+            <p class="lead">Six commitments that run through every formula in our portfolio — from the ingredients we source to the technology we use to deliver them.</p>
           </div>
-          <div class="pillars">
-            <div class="pillar reveal">
-              <h3>Liposomal delivery</h3>
+
+          <div class="action-row" style="padding:0;">
+            <div class="action-cell reveal">
+              <h3>Liposomal delivery.</h3>
               <p>Lipid-based carriers protect active ingredients through digestion, dramatically improving absorption and tolerability — used in ASD Iron, ASD Magnesium and the Semifer range.</p>
             </div>
-            <div class="pillar reveal">
-              <h3>Chelation</h3>
-              <p>Minerals bound to amino acids (e.g. iron bisglycinate in ASD Chelazen) for superior bioavailability and gentler GI tolerance.</p>
+            <div class="action-cell reveal">
+              <h3>Chelation.</h3>
+              <p>Minerals bound to amino acids — like the iron bisglycinate in ASD Chelazen — for superior bioavailability and gentler GI tolerance.</p>
             </div>
-            <div class="pillar reveal">
-              <h3>Sustained release</h3>
+            <div class="action-cell reveal">
+              <h3>Sustained release.</h3>
               <p>Patented technology that releases nutrients gradually over the course of the day — for steady energy, focus and wellness, as in ASD Sustained Vit.</p>
             </div>
-            <div class="pillar reveal">
-              <h3>Nanotechnology</h3>
+            <div class="action-cell reveal">
+              <h3>Nanotechnology.</h3>
               <p>Particle-size engineering that increases surface area and absorption efficiency, used across the ASD Iron and Chelazen formulations.</p>
             </div>
-            <div class="pillar reveal">
-              <h3>Patent formulas</h3>
+            <div class="action-cell reveal">
+              <h3>Patent formulas.</h3>
               <p>Selected combinations — such as Zinco Q10 — are patent-protected formulas designed for synergistic action.</p>
             </div>
-            <div class="pillar reveal">
-              <h3>Pharmaceutical-grade ingredients</h3>
+            <div class="action-cell reveal">
+              <h3>Pharmaceutical-grade.</h3>
               <p>Sourced and verified at pharmaceutical standards, with batch-level traceability and rigorous quality control.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section bleed-grey">
         <div class="container">
-          <div class="cta-band reveal">
-            <h2>Want to learn more about our portfolio?</h2>
-            <p>Browse our full product range or speak directly with our medical team.</p>
-            <div class="hero-actions" style="justify-content:center;">
-              <a class="btn btn-accent btn-lg" href="products.html">View products</a>
-              <a class="btn btn-light btn-lg" href="contact.html">Contact us</a>
+          <div class="split reverse">
+            <div class="split-image reveal">
+              <img src="assets/img/ASDSustainedVit.png" alt="ASD Sustained Vit" loading="lazy" style="object-fit:contain;background:#F0EDE8;padding:3rem;" />
+            </div>
+            <div class="split-text reveal">
+              <span class="eyebrow eyebrow-red">Our portfolio</span>
+              <h2>Eleven products. One standard.</h2>
+              <p class="lead">A focused portfolio of pharmaceutical-grade nutritional supplements — for energy, immunity, fertility, recovery and pediatric care.</p>
+              <a class="link-arrow mt-2" href="products.html">Explore products {ARROW}</a>
             </div>
           </div>
         </div>
@@ -606,52 +598,82 @@ def page_about():
 
 
 def page_partners():
-    body = header("partners") + dedent("""\
+    body = header("partners") + dedent(f"""\
     <main>
       <section class="page-head">
         <div class="container">
-          <p class="crumb"><a href="index.html">Home</a> / Partners</p>
-          <span class="eyebrow">Partner with ASD</span>
+          <p class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Partners</p>
           <h1>Bring ASD products to your market.</h1>
           <p class="lead">We work with pharmacies, hospital groups, distributors and clinical partners across the GCC and the Middle East.</p>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section bleed-grey">
         <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow eyebrow-blue">How we work together</span>
-            <h2>Partnership models.</h2>
-            <span class="divider"></span>
+          <div class="heading-block reveal">
+            <div>
+              <span class="eyebrow">How we work together</span>
+              <h2>Three ways to partner with ASD.</h2>
+            </div>
+            <p class="lead">Choose the relationship that fits your organisation — pharmacy, healthcare practice or regional distributor — and our team will guide you through the next steps.</p>
           </div>
-          <div class="pillars">
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-              <h3>Pharmacy networks</h3>
+
+          <div class="action-row" style="padding:0;">
+            <div class="action-cell reveal">
+              <div class="ico">
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <h3>Pharmacy networks.</h3>
               <p>Stocking, training and merchandising support for pharmacies across the UAE and the wider region — backed by clinical content for your pharmacists.</p>
+              <a class="link-arrow" href="contact.html">Stock our products {ARROW}</a>
             </div>
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
-              <h3>Healthcare professionals</h3>
+            <div class="action-cell reveal">
+              <div class="ico">
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+              </div>
+              <h3>Healthcare professionals.</h3>
               <p>Sample requests, scientific literature and direct support for prescribers and clinical teams looking to recommend ASD products.</p>
+              <a class="link-arrow" href="contact.html">Request samples {ARROW}</a>
             </div>
-            <div class="pillar reveal">
-              <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></div>
-              <h3>Regional distribution</h3>
+            <div class="action-cell reveal">
+              <div class="ico">
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg>
+              </div>
+              <h3>Regional distribution.</h3>
               <p>Looking to import ASD products into your country across the GCC or the Middle East? We can discuss exclusive and non-exclusive arrangements.</p>
+              <a class="link-arrow" href="contact.html">Distribute ASD {ARROW}</a>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section bleed">
+      <section class="red-band">
         <div class="container">
-          <div class="cta-band reveal">
-            <h2>Let's talk partnership.</h2>
-            <p>Tell us about your market, your channels and the products you'd like to carry — our team will respond within two business days.</p>
-            <div class="hero-actions" style="justify-content:center;">
-              <a class="btn btn-accent btn-lg" href="contact.html">Start a conversation</a>
-              <a class="btn btn-light btn-lg" href="products.html">See products</a>
+          <span class="eyebrow eyebrow-light">Why partner with ASD</span>
+          <div class="red-band-grid">
+            <div>
+              <p class="quote">"Trusted by healthcare professionals across the UAE and the GCC — formulas designed to be felt, tolerated and recommended."</p>
+            </div>
+            <div class="red-band-side">
+              <h3>What you get when you partner with us.</h3>
+              <p>Pharmaceutical-grade products, clinical content for your team, regulatory support across GCC markets, and a direct line to our medical team for any patient question that comes up.</p>
+              <a class="link-arrow on-red" href="contact.html">Start a conversation {ARROW}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="split">
+            <div class="split-image reveal">
+              <img src="assets/img/quality-commitment.png" alt="ASD International quality" loading="lazy" />
+            </div>
+            <div class="split-text reveal">
+              <span class="eyebrow eyebrow-red">Next steps</span>
+              <h2>Tell us about your market.</h2>
+              <p class="lead">Share your channels, your country and the products you'd like to carry. Our team will respond within two business days with a tailored proposal.</p>
+              <a class="link-arrow mt-2" href="contact.html">Get in touch {ARROW}</a>
             </div>
           </div>
         </div>
@@ -666,12 +688,11 @@ def page_partners():
 
 
 def page_contact():
-    body = header("contact") + dedent("""\
+    body = header("contact") + dedent(f"""\
     <main>
       <section class="page-head">
         <div class="container">
-          <p class="crumb"><a href="index.html">Home</a> / Contact</p>
-          <span class="eyebrow">Get in touch</span>
+          <p class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Contact</p>
           <h1>Let's connect.</h1>
           <p class="lead">Whether you're a healthcare professional, a potential partner, or simply have a question about our products — we're here to help.</p>
         </div>
@@ -680,39 +701,38 @@ def page_contact():
       <section class="section">
         <div class="container contact-grid">
           <div class="reveal">
-            <div class="info-card">
+            <div class="info-stack">
+              <span class="eyebrow eyebrow-red">Get in touch</span>
               <h3>Contact information</h3>
-              <p class="muted">Our dedicated team is available Monday through Friday, 9:00 AM to 5:00 PM (GST) to assist you with your inquiries.</p>
+              <p class="muted">Our dedicated team is available Monday through Friday, 9:00 AM to 5:00 PM (GST).</p>
               <div class="rule"></div>
               <ul class="info-list">
                 <li>
                   <span class="ico">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                   </span>
-                  <div><strong>Phone</strong><a href="tel:+97122459549">+971 2 245 9549</a></div>
+                  <div><strong>Phone</strong><div class="info-val"><a href="tel:+97122459549">+971 2 245 9549</a></div></div>
                 </li>
                 <li>
                   <span class="ico">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.99 5.73a2 2 0 0 1-2.02 0L2 7"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.99 5.73a2 2 0 0 1-2.02 0L2 7"/></svg>
                   </span>
-                  <div><strong>Email</strong><a href="mailto:info@asdinternational.co">info@asdinternational.co</a></div>
+                  <div><strong>Email</strong><div class="info-val"><a href="mailto:info@asdinternational.co">info@asdinternational.co</a></div></div>
                 </li>
                 <li>
                   <span class="ico">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   </span>
                   <div><strong>Headquarters</strong>
-                    Block 2 — Store No. 3<br/>
-                    Abu Dhabi Industrial City — ICAD III<br/>
-                    Abu Dhabi, United Arab Emirates
+                    <div class="info-val">Block 2 — Store No. 3<br/>Abu Dhabi Industrial City — ICAD III<br/>Abu Dhabi, United Arab Emirates</div>
                   </div>
                 </li>
                 <li>
                   <span class="ico">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
                   </span>
                   <div><strong>LinkedIn</strong>
-                    <a href="https://www.linkedin.com/company/asd-international-medical-requisites" target="_blank" rel="noopener">ASD International Medical Requisites</a>
+                    <div class="info-val"><a href="https://www.linkedin.com/company/asd-international-medical-requisites" target="_blank" rel="noopener">ASD International Medical Requisites</a></div>
                   </div>
                 </li>
               </ul>
@@ -726,8 +746,9 @@ def page_contact():
           </div>
 
           <div class="reveal">
-            <div class="form-card">
-              <h3>Send a message</h3>
+            <div class="form-stack">
+              <span class="eyebrow eyebrow-red">Send a message</span>
+              <h3>How can we help?</h3>
               <p class="muted">Tell us a little about you and we'll get back to you within two business days.</p>
               <form data-contact-form novalidate>
                 <div class="form-row cols-2">
@@ -762,9 +783,8 @@ def page_contact():
                     <textarea id="message" name="message" required placeholder="How can we help?"></textarea>
                   </div>
                 </div>
-                <button class="btn btn-accent btn-lg" type="submit">
-                  Send message
-                  <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <button class="btn btn-red btn-lg mt-2" type="submit">
+                  Send message {ARROW}
                 </button>
                 <p class="form-note">By sending this message you agree to be contacted by ASD International. We do not share your information with third parties.</p>
                 <div class="form-success" data-form-success>Thanks — your message is ready in your email client. We'll be in touch shortly.</div>
@@ -783,36 +803,27 @@ def page_contact():
 
 
 def page_products_index():
-    cards = []
+    thumbs_html_parts = []
     for p in PRODUCTS:
-        featured_badge = '<span class="badge">Featured</span>' if p["featured"] else ''
-        cards.append(dedent(f"""\
-          <article class="product-card reveal" data-category="{p['category']}">
-            <a class="cover" href="products/{p['slug']}.html">
-              <div class="product-img">
-                <img src="assets/img/{p['image']}" alt="{p['name']}" loading="lazy" />
-                {featured_badge}
-              </div>
-              <div class="product-body">
-                <span class="cat-tag">{p['category']}</span>
-                <h3>{p['name']}</h3>
-                <p>{p['short']}</p>
-                <span class="more">Learn more →</span>
-              </div>
-            </a>
-          </article>
+        thumbs_html_parts.append(dedent(f"""\
+          <a class="thumb reveal" href="products/{p['slug']}.html" data-category="{p['category']}">
+            <div class="thumb-img"><img src="assets/img/{p['image']}" alt="{p['name']}" loading="lazy" /></div>
+            <p class="thumb-cat">{p['category']}</p>
+            <h3 class="thumb-label">{p['name']}</h3>
+            <span class="thumb-link">Explore product →</span>
+          </a>
         """))
+    thumbs_html = ''.join(thumbs_html_parts)
 
-    filters = '<button class="chip-filter active" data-filter="all">All products</button>\n'
+    filters_html = '<button class="chip-filter active" data-filter="all">All products</button>\n'
     for c in CATEGORIES:
-        filters += f'        <button class="chip-filter" data-filter="{c}">{c}</button>\n'
+        filters_html += f'        <button class="chip-filter" data-filter="{c}">{c}</button>\n'
 
     body = header("products") + dedent(f"""\
     <main>
       <section class="page-head">
         <div class="container">
-          <p class="crumb"><a href="index.html">Home</a> / Products</p>
-          <span class="eyebrow">Our portfolio</span>
+          <p class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Products</p>
           <h1>Eleven products. One standard.</h1>
           <p class="lead">Pharmaceutical-grade nutritional supplements — engineered with advanced delivery systems for absorption you can feel.</p>
         </div>
@@ -821,19 +832,23 @@ def page_products_index():
       <section class="section">
         <div class="container">
           <div class="filter-bar reveal">
-        {filters}      </div>
-          <div class="product-grid" data-product-grid>
-        {''.join(cards)}      </div>
+        {filters_html}      </div>
+
+          <div class="thumb-grid" data-product-grid>
+        {thumbs_html}      </div>
         </div>
       </section>
 
-      <section class="section bleed">
+      <section class="red-band">
         <div class="container">
-          <div class="cta-band reveal">
-            <h2>Need help choosing?</h2>
-            <p>Our medical team can help you match a product to a patient profile, condition or use-case.</p>
-            <div class="hero-actions" style="justify-content:center;">
-              <a class="btn btn-accent btn-lg" href="contact.html">Talk to our team</a>
+          <div class="red-band-grid">
+            <div>
+              <p class="quote">"Need help matching a product to a patient profile, condition or stage of life?"</p>
+            </div>
+            <div class="red-band-side">
+              <h3>Talk to our medical team.</h3>
+              <p>Our team can guide you through the portfolio, answer formulation questions, and direct you to the right ASD product for the case in front of you.</p>
+              <a class="link-arrow on-red" href="contact.html">Get in touch {ARROW}</a>
             </div>
           </div>
         </div>
@@ -850,40 +865,33 @@ def page_products_index():
 def page_product_detail(p):
     benefits_html = '\n'.join(f'        <li>{b}</li>' for b in p['benefits'])
     ingredients_html = '\n'.join(f'        <li>{i}</li>' for i in p['ingredients'])
-    highlights = ' · '.join(p['highlights'])
+    highlights_html = ''.join(f'<span>{h}</span>' for h in p['highlights'])
 
-    related = [r for r in PRODUCTS if r['slug'] != p['slug'] and r['category'] == p['category']][:3]
-    if len(related) < 3:
+    related = [r for r in PRODUCTS if r['slug'] != p['slug'] and r['category'] == p['category']][:4]
+    if len(related) < 4:
         for r in PRODUCTS:
             if r['slug'] != p['slug'] and r not in related:
                 related.append(r)
-            if len(related) == 3:
+            if len(related) == 4:
                 break
 
-    related_cards = []
+    related_thumbs = []
     for r in related:
-        related_cards.append(dedent(f"""\
-        <article class="product-card reveal">
-          <a class="cover" href="{r['slug']}.html">
-            <div class="product-img">
-              <img src="../assets/img/{r['image']}" alt="{r['name']}" loading="lazy" />
-            </div>
-            <div class="product-body">
-              <span class="cat-tag">{r['category']}</span>
-              <h3>{r['name']}</h3>
-              <p>{r['short']}</p>
-              <span class="more">Learn more →</span>
-            </div>
-          </a>
-        </article>
+        related_thumbs.append(dedent(f"""\
+        <a class="thumb reveal" href="{r['slug']}.html">
+          <div class="thumb-img"><img src="../assets/img/{r['image']}" alt="{r['name']}" loading="lazy" /></div>
+          <p class="thumb-cat">{r['category']}</p>
+          <h3 class="thumb-label">{r['name']}</h3>
+          <span class="thumb-link">Explore product →</span>
+        </a>
         """))
 
     body = header(f"product:{p['slug']}", base="../") + dedent(f"""\
     <main>
       <section class="page-head">
         <div class="container">
-          <p class="crumb"><a href="../index.html">Home</a> / <a href="../products.html">Products</a> / {p['name']}</p>
-          <span class="eyebrow">{p['category']}</span>
+          <p class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="../products.html">Products</a><span class="sep">/</span>{p['name']}</p>
+          <span class="eyebrow eyebrow-red">{p['category']}</span>
           <h1>{p['name']}</h1>
           <p class="lead">{p['tagline']}</p>
         </div>
@@ -898,18 +906,17 @@ def page_product_detail(p):
           </div>
 
           <div class="reveal">
-            <span class="eyebrow eyebrow-blue">{highlights}</span>
+            <div class="highlights">{highlights_html}</div>
             <h2>{p['tagline']}</h2>
-            <span class="divider"></span>
             <p class="lead mt-3">{p['short']}</p>
             <p>{p['long']}</p>
 
-            <div class="kv">
-              <div class="kv-card">
+            <div class="spec-grid">
+              <div class="spec">
                 <h4>Form &amp; pack</h4>
                 <p class="value">{p['form']}</p>
               </div>
-              <div class="kv-card">
+              <div class="spec">
                 <h4>Dosage</h4>
                 <p class="value">{p['dosage']}</p>
               </div>
@@ -929,12 +936,12 @@ def page_product_detail(p):
               </ul>
             </div>
 
-            <div class="hero-actions mt-4">
-              <a class="btn btn-accent btn-lg" href="../contact.html">Inquire about {p['name']}</a>
-              <a class="btn btn-ghost btn-lg" href="../products.html">All products</a>
+            <div class="mt-6">
+              <a class="btn btn-red btn-lg" href="../contact.html">Inquire about {p['name']} {ARROW}</a>
+              <a class="link-arrow" href="../products.html" style="margin-left:1.5rem;">All products {ARROW}</a>
             </div>
 
-            <p class="form-note mt-2">
+            <p class="form-note mt-4">
               This information is for healthcare professionals and informational purposes
               only and is not a substitute for medical advice. Please consult a qualified
               healthcare provider before starting any supplement.
@@ -943,15 +950,17 @@ def page_product_detail(p):
         </div>
       </section>
 
-      <section class="section bleed">
+      <section class="section bleed-grey">
         <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow eyebrow-blue">More from our portfolio</span>
-            <h2>You may also be interested in.</h2>
-            <span class="divider"></span>
+          <div class="heading-block reveal">
+            <div>
+              <span class="eyebrow">More from our portfolio</span>
+              <h2>You may also be interested in.</h2>
+            </div>
+            <p class="lead">Other ASD products in adjacent categories — for related conditions, life stages or use-cases.</p>
           </div>
-          <div class="product-grid">
-        {''.join(related_cards)}      </div>
+          <div class="thumb-grid">
+        {''.join(related_thumbs)}      </div>
         </div>
       </section>
     </main>
@@ -978,7 +987,7 @@ def write(path, content):
 
 
 def main():
-    print("Building ASD International site...")
+    print("Building ASD International site (Lilly-style)...")
     write("about.html",    page_about())
     write("partners.html", page_partners())
     write("contact.html",  page_contact())

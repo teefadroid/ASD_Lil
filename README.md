@@ -4,9 +4,18 @@ A static, dependency-free corporate website for **ASD International Medical Requ
 
 ## Design
 
-- **Editorial pharma aesthetic** inspired by Eli Lilly's corporate language: cream paper canvas, navy ink, warm red accent, Fraunces serif paired with Inter, generous whitespace, full-bleed image moments and slow scroll reveals.
-- **Footer recolored from the ASD logo** — deep blue (`#1B549A` / `#103564` / `#0A2247`) with an antelope-green accent (`#5BB133`).
-- **Home-page centerpiece** is the existing `ASD.mp4` video, framed in a 4:5 navy-glass card with floating quality chips around it.
+Modeled on the editorial language of **[lilly.com](https://www.lilly.com/)**:
+
+- **Full-bleed video hero** with a large serif headline overlaid in white — *"A medicine company should do more than just make medicine."*
+- **Three-column action row** under the hero (Find care / Access medicine / Partner with us), each cell with a top border + icon + serif heading + small copy + arrow link, matching Lilly's hero-bottom pattern.
+- **Product Support grid** with square thumbnail tiles + serif label below — same treatment Lilly uses for the "Condition Support" section (Cancer / Diabetes / Migraine, etc.).
+- **Image+text splits** with oversized serif headlines like *"Our job's not done once the formula is made."*
+- **Full-bleed RED band** with a patient pull-quote in italic serif — Lilly's patient-story treatment, recolored in ASD red (`#D52B1E`).
+- **Bottom-bordered form fields** instead of boxed inputs.
+- **No rounded glass cards or gradient blobs** — flat, editorial pharma.
+- **EB Garamond** for headlines, **Inter** for body.
+
+The **footer** is the only deviation from Lilly's red palette — it stays in **logo-derived blue + green** (`#103564 → #0A2247` background with `#5BB133` accents) per the brief.
 
 All design tokens live in [`assets/css/site.css`](./assets/css/site.css) under the `:root` block.
 
@@ -16,18 +25,18 @@ All company details — products, ingredients, benefits, dosage, contact info, a
 
 | Page | Source |
 | ---- | ------ |
-| `index.html` | Hand-written hero + featured products + stats + CTA |
-| `about.html` | Mission + technology pillars |
-| `products.html` | Filterable grid of all 11 products |
-| `products/<slug>.html` | One detail page per product (×11) |
-| `partners.html` | Partnership models + CTA |
-| `contact.html` | Phone, email, HQ address, embedded Google Map, contact form |
+| `index.html` | Hand-written: full-bleed video hero + 3-col action row + product thumb grid + image-split + red pull-quote + partner split |
+| `about.html` | Story split + red purpose-quote band + 6-card technology pillars + reverse split |
+| `products.html` | Filterable thumb grid (categories) + red CTA band |
+| `products/<slug>.html` | One detail page per product (×11) — image, highlights row, spec grid, benefits, composition, related thumbs |
+| `partners.html` | 3-col partnership models + red "what you get" band + image split |
+| `contact.html` | Phone, email, HQ address, embedded Google Map + bottom-bordered contact form |
 
 ## Project layout
 
 ```
 .
-├── index.html               # Home page (hero + ASD.mp4 video)
+├── index.html
 ├── about.html
 ├── products.html
 ├── partners.html
@@ -45,11 +54,11 @@ All company details — products, ingredients, benefits, dosage, contact info, a
 │   ├── asd-chelazen.html
 │   └── asd-magneflex.html
 ├── assets/
-│   ├── css/site.css         # Design tokens + components
-│   ├── js/site.js           # Mobile menu, reveals, filters, form
+│   ├── css/site.css
+│   ├── js/site.js
 │   ├── img/                 # Logo, favicon, product images, hero image
-│   └── video/ASD.mp4        # Home-page centerpiece video
-└── _build/build.py          # Static-site generator (header/footer/products)
+│   └── video/ASD.mp4        # Full-bleed hero video
+└── _build/build.py          # Static-site generator
 ```
 
 ## Running locally
